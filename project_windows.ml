@@ -48,7 +48,8 @@ end
 (* Tukaj re-definirajte funkcijo naloga1 in naloga2 *)
 module Solver1 : Solver = struct
   let naloga1 vsebina_datoteke =
-    let lines = List.lines vsebina_datoteke in
+    let odrezana = String.trim vsebina_datoteke in
+    let lines = List.lines odrezana in
     let stevila = List.int_list lines in
     let rec prva_rekurzija l =
         match l with
@@ -63,7 +64,28 @@ module Solver1 : Solver = struct
     in
     string_of_int (prva_rekurzija stevila)
 
-  let naloga2 data _part1 = ""
+  let naloga2 vsebina_datoteke _part1=
+    let odrezana = String.trim vsebina_datoteke in
+    let lines = List.lines odrezana in
+    let stevila = List.int_list lines in
+    let rec prva_rekurzija l =
+        match l with
+        | [] -> failwith "Ni taksnih stevil."
+        | x :: xs -> 
+            let rec druga_rekurzija l2 =
+                match l2 with
+                | [] -> prva_rekurzija xs
+                | y :: ys -> 
+                  let rec tretja_rekurzija l3 =
+                    match l3 with
+                    | [] -> druga_rekurzija ys
+                    | z :: zs -> if x + y + z = 2020 then x * y * z else tretja_rekurzija zs
+                  in
+                  tretja_rekurzija ys
+            in
+            druga_rekurzija xs
+    in
+    string_of_int (prva_rekurzija stevila)  
 end
 
 (* Poženemo zadevo *)
