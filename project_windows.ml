@@ -88,10 +88,78 @@ module Solver1 : Solver = struct
     string_of_int (prva_rekurzija stevila)  
 end
 
+module Solver2 : Solver = struct
+  let naloga1 vsebina_datoteke =
+    let vrstice = List.lines vsebina_datoteke in
+    let rec pravilni seznam stevilo_pravilnih =
+      match seznam with
+      | [] -> stevilo_pravilnih
+      | vrstica :: ostale ->
+        let vrstica = String.split_on_char ' ' vrstica in
+        match vrstica with
+        | [] -> failwith "Napaka"
+        | a :: rest -> match String.split_on_char '-' a with
+          | [] -> failwith "Napaka"
+          | min :: b -> let min = int_of_string min in match b with
+            | [] -> failwith "Napaka"
+            | max :: _ -> let max = int_of_string max in
+          match rest with
+          | [] -> failwith "Napaka"
+          | c :: ostanek_geslo -> let crka = String.get c 0 in 
+            match ostanek_geslo with
+            | [] -> failwith "Napaka"
+            | geslo :: _ -> let geslo = geslo in
+      let rec stetje str n =
+        let dolzina = String.length str in
+          if String.get str 0 = crka then
+            begin
+            if dolzina > 1 then stetje (String.sub str 1 (dolzina - 1)) (n + 1)
+            else if min <= (n + 1) && (n + 1) <= max then (pravilni ostale (stevilo_pravilnih + 1))
+            else pravilni ostale stevilo_pravilnih
+            end
+          else if dolzina > 1 then stetje (String.sub str 1 (dolzina - 1)) n
+          else if min <= n && n <= max then (pravilni ostale (stevilo_pravilnih + 1))
+          else pravilni ostale stevilo_pravilnih
+      in
+      stetje geslo 0
+    in
+    string_of_int (pravilni vrstice 0)
+
+          
+
+  let naloga2 vsebina_datoteke _part1 =
+    let vrstice = List.lines vsebina_datoteke in
+    let rec pravilni seznam stevilo_pravilnih =
+      match seznam with
+      | [] -> stevilo_pravilnih
+      | vrstica :: ostale ->
+        let vrstica = String.split_on_char ' ' vrstica in
+        match vrstica with
+        | [] -> failwith "Napaka"
+        | a :: rest -> match String.split_on_char '-' a with
+          | [] -> failwith "Napaka"
+          | prvi :: b -> let prvi = int_of_string prvi - 1 in match b with
+            | [] -> failwith "Napaka"
+            | drugi :: _ -> let drugi = int_of_string drugi - 1 in
+          match rest with
+          | [] -> failwith "Napaka"
+          | c :: ostanek_geslo -> let crka = String.get c 0 in 
+            match ostanek_geslo with
+            | [] -> failwith "Napaka"
+            | geslo :: _ -> let geslo = geslo in
+      if ((String.get geslo prvi = crka || String.get geslo drugi = crka)
+            && not (String.get geslo prvi = crka && String.get geslo drugi = crka))
+        then pravilni ostale (stevilo_pravilnih + 1)
+      else pravilni ostale stevilo_pravilnih
+    in 
+    string_of_int (pravilni vrstice 0)
+end
+
 (* Poženemo zadevo *)
 let choose_solver : string -> (module Solver) = function
   | "0" -> (module Solver0)
   | "1" -> (module Solver1)
+  | "2" -> (module Solver2)
   | _ -> failwith "Ni še rešeno"
 
 let main () =
