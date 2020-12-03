@@ -155,11 +155,61 @@ module Solver2 : Solver = struct
     string_of_int (pravilni vrstice 0)
 end
 
+module Solver3 : Solver = struct
+  let naloga1 data =
+    let vrste = List.lines data in
+    let dolzina = String.length (List.hd vrste) in
+    let rec stevilo_dreves seznam stevec index =
+      match seznam with
+      | [] -> stevec
+      | vrsta :: rest ->
+        if String.get vrsta index = '#'
+          then stevilo_dreves rest (stevec + 1) ((index + 3) mod dolzina)
+        else stevilo_dreves rest stevec ((index + 3) mod dolzina)
+    in
+    string_of_int (stevilo_dreves vrste 0 0)
+
+
+
+  let naloga2 data _part1 =
+    let vrste = List.lines data in
+    let dolzina = String.length (List.hd vrste) in
+    let rec stevilo_dreves seznam stevec premik_dol premik_desno index =
+      match seznam with
+      | [] -> stevec
+      | vrsta :: spuscena :: rest when premik_dol = 2 ->
+        if String.get vrsta index = '#'
+          then stevilo_dreves rest (stevec + 1) premik_dol premik_desno ((index + premik_desno) mod dolzina)
+        else stevilo_dreves rest stevec premik_dol premik_desno ((index + premik_desno) mod dolzina)
+      | vrsta :: rest when premik_dol = 2 ->
+        if String.get vrsta index = '#'
+          then stevec + 1
+        else stevec
+      | vrsta :: rest ->
+        if String.get vrsta index = '#'
+          then stevilo_dreves rest (stevec + 1) premik_dol premik_desno ((index + premik_desno) mod dolzina)
+        else stevilo_dreves rest stevec premik_dol premik_desno ((index + premik_desno) mod dolzina)
+    in
+    string_of_int (
+      stevilo_dreves vrste 0 1 1 0*
+      stevilo_dreves vrste 0 1 3 0*
+      stevilo_dreves vrste 0 1 5 0*
+      stevilo_dreves vrste 0 1 7 0*
+      stevilo_dreves vrste 0 2 1 0)
+end
+
+module Solver4 : Solver = struct
+  let naloga1 data = ""
+
+  let naloga2 data _part1 = ""
+end
+
 (* Poženemo zadevo *)
 let choose_solver : string -> (module Solver) = function
   | "0" -> (module Solver0)
   | "1" -> (module Solver1)
   | "2" -> (module Solver2)
+  | "3" -> (module Solver3)
   | _ -> failwith "Ni še rešeno"
 
 let main () =
