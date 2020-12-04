@@ -199,6 +199,108 @@ module Solver3 : Solver = struct
 end
 
 module Solver4 : Solver = struct
+  let naloga1 data =
+    let lines = List.lines data in
+    let rec stevilo_valid seznam valid vsebuje_cid stevec=
+      match seznam with
+      | [] -> valid
+      | "" :: rest ->
+        if  stevec = 8 || (stevec = 7 && not vsebuje_cid)
+          then stevilo_valid rest (valid + 1) false 0
+        else stevilo_valid rest valid false 0
+      | vrstica :: rest -> 
+        let loceni = String.split_on_char ' ' vrstica in
+        let rec stetje li vsebuje st =
+          match li with
+          | [] -> stevilo_valid rest valid vsebuje st
+          | x :: xs ->
+            if List.hd (String.split_on_char ':' x) = "cid"
+              then stetje xs true (st + 1)
+            else stetje xs vsebuje (st + 1)
+        in
+        stetje loceni vsebuje_cid stevec
+    in
+    string_of_int (stevilo_valid lines 0 false 0)
+
+  let naloga2 data _part1 =
+    let lines = List.lines data in
+    let rec stevilo_valid seznam valid stevec=
+      match seznam with
+      | [] -> valid
+      | "" :: rest ->
+        if  stevec = 7
+          then stevilo_valid rest (valid + 1)  0
+        else stevilo_valid rest valid  0
+      | vrstica :: rest -> 
+        let loceni = String.split_on_char ' ' vrstica in
+        let rec stetje li st =
+          match li with
+          | [] -> stevilo_valid rest valid st
+          | x :: xs ->
+            let par = (String.split_on_char ':' x) in
+            match par with
+              | [] -> stetje xs st
+              | "byr" :: vrednost ->
+                let vred = int_of_string (List.hd vrednost) in
+                if 1920 <= vred && vred <= 2002
+                  then stetje xs (st + 1)
+                else stevilo_valid rest valid 0
+              | "iyr" :: vrednost ->
+                let vred = int_of_string (List.hd vrednost) in
+                if 2010 <= vred && vred <= 2020
+                  then stetje xs (st + 1)
+                else stevilo_valid rest valid 0
+              | "eyr" :: vrednost ->
+                let vred = int_of_string (List.hd vrednost) in
+                if 2020 <= vred && vred <= 2030
+                  then stetje xs (st + 1)
+                else stevilo_valid rest valid 0
+              | "hgt" :: vrednost ->
+                let vred = List.hd vrednost in
+                if ( String.length vred = 5 &&
+                  vred.[3] = 'c' &&
+                  vred.[4] = 'm' &&
+                  150 <= int_of_string (String.sub vred 0 (String.length vred - 2)) &&
+                  int_of_string (String.sub vred 0 (String.length vred - 2)) <= 193) ||
+                  (String.length vred = 4 &&
+                  vred.[2] = 'i' &&
+                  vred.[3] = 'n' &&
+                  59 <= int_of_string (String.sub vred 0 (String.length vred - 2)) &&
+                  int_of_string (String.sub vred 0 (String.length vred - 2)) <= 76)
+                  then stetje xs (st + 1)
+                else stevilo_valid rest valid 0
+              | "hcl" :: vrednost ->
+                let vred = List.hd vrednost in
+                if vred.[0] = '#' then
+                  begin
+                  let rec preveri_znak str index =
+                    if index > (String.length str - 1)
+                      then stetje xs (st + 1)
+                    else if List.mem str.[index] ['1';'2';'3';'4';'5';'6';'7';'8';'9';'0';'a';'b';'c';'d';'e';'f']
+                      then preveri_znak str (index + 1)
+                    else stevilo_valid rest valid 0
+                  in
+                  preveri_znak vred 1
+                  end
+                else stevilo_valid rest valid 0
+              | "ecl" :: vrednost ->
+                let vred = List.hd vrednost in
+                if vred = "amb" || vred = "blu" || vred = "brn" || vred = "gry" || vred = "grn" || vred = "hzl" || vred = "oth"
+                  then stetje xs (st + 1)
+                else stevilo_valid rest valid 0
+              | "pid" :: vrednost ->
+                let vred = List.hd vrednost in
+                if String.length vred = 9
+                  then stetje xs (st + 1)
+                else stevilo_valid rest valid 0   
+              | _ :: _ -> stetje xs st   
+        in
+        stetje loceni stevec
+    in
+    string_of_int (stevilo_valid lines 0 0)
+end
+
+module Solver10 : Solver = struct
   let naloga1 data = ""
 
   let naloga2 data _part1 = ""
@@ -210,6 +312,7 @@ let choose_solver : string -> (module Solver) = function
   | "1" -> (module Solver1)
   | "2" -> (module Solver2)
   | "3" -> (module Solver3)
+  | "4" -> (module Solver4)
   | _ -> failwith "Ni še rešeno"
 
 let main () =
