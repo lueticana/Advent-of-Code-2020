@@ -300,6 +300,68 @@ module Solver4 : Solver = struct
     string_of_int (stevilo_valid lines 0 0)
 end
 
+module Solver5 : Solver = struct
+  let naloga1 data =
+    let lines = List.lines data in
+    let rec max_id sez_vrst najvecji =
+      match sez_vrst with
+      | [] -> najvecji
+      | vrstica :: ostale ->
+        let rec dobimo_vrsto str min max index =
+          if index = 7 then min
+          else if str.[index] = 'F' then
+            dobimo_vrsto str min ((min + max - 1) / 2) (index + 1)
+          else
+            dobimo_vrsto str ((min + max + 1) / 2) max (index + 1)
+        in
+        let vrsta = dobimo_vrsto vrstica 0 127 0 in
+        let rec dobimo_sedez str min max index =
+          if index = 3 then min
+          else if str.[index + 7] = 'L'then
+            dobimo_sedez str min ((min + max - 1) / 2) (index + 1)
+          else
+            dobimo_sedez str ((min + max + 1) / 2) max (index + 1)
+        in
+        let sedez = dobimo_sedez vrstica 0 7 0 in
+        let zmnozek = vrsta * 8 + sedez in
+        max_id ostale (max najvecji zmnozek)
+    in
+    string_of_int (max_id lines 0)
+      
+
+  let naloga2 data _part1 = 
+    let lines = List.lines data in
+    let rec sum sez_vrst vsota =
+      match sez_vrst with
+      | [] -> vsota
+      | vrstica :: ostale ->
+        let rec dobimo_vrsto str min max index =
+          if index = 7 then min
+          else if str.[index] = 'F' then
+            dobimo_vrsto str min ((min + max - 1) / 2) (index + 1)
+          else
+            dobimo_vrsto str ((min + max + 1) / 2) max (index + 1)
+        in
+        let vrsta = dobimo_vrsto vrstica 0 127 0 in
+        let rec dobimo_sedez str min max index =
+          if index = 3 then min
+          else if str.[index + 7] = 'L'then
+            dobimo_sedez str min ((min + max - 1) / 2) (index + 1)
+          else
+            dobimo_sedez str ((min + max + 1) / 2) max (index + 1)
+        in
+        let sedez = dobimo_sedez vrstica 0 7 0 in
+        let zmnozek = vrsta * 8 + sedez in
+        sum ostale (vsota + zmnozek)
+    in
+    let rec sestej do_ sum stevilo =
+      if stevilo = do_ then (sum + stevilo)
+      else sestej do_ (sum + stevilo) (stevilo + 1)
+    in
+    string_of_int ((sestej 818 0 48) - (sum lines 0))
+
+end
+
 module Solver10 : Solver = struct
   let naloga1 data = ""
 
@@ -313,6 +375,7 @@ let choose_solver : string -> (module Solver) = function
   | "2" -> (module Solver2)
   | "3" -> (module Solver3)
   | "4" -> (module Solver4)
+  | "5" -> (module Solver5)
   | _ -> failwith "Ni še rešeno"
 
 let main () =
