@@ -362,6 +362,51 @@ module Solver5 : Solver = struct
 
 end
 
+module Solver6 : Solver = struct
+  let naloga1 data =
+    let lines = List.lines data in
+    let rec rekurzija list vsota seznam =
+      match list with
+      | [] -> (vsota + List.length seznam)
+      | "" :: rest -> rekurzija rest (vsota + List.length seznam) []
+      | vrstica :: rest ->
+        let rec for_loop vrstica index seznam =
+          if index = String.length vrstica
+            then rekurzija rest vsota seznam
+          else if List.mem vrstica.[index] seznam
+            then for_loop vrstica (index + 1) seznam
+          else for_loop vrstica (index + 1) (vrstica.[index] :: seznam) 
+        in
+        for_loop vrstica 0 seznam
+    in
+    string_of_int (rekurzija lines 0 [])
+
+  let naloga2 data _part1 =
+    let lines = "" :: List.lines data in
+    let string_to_list s =
+      let rec rek i l =
+        if i < 0 then l
+        else rek (i - 1) (s.[i] :: l) 
+      in
+      rek (String.length s - 1) []
+    in
+    let rec rekurzija list vsota seznam =
+      match list with
+      | [] -> (vsota + List.length seznam)
+      | "" :: vrstica :: rest -> rekurzija rest (vsota + List.length seznam) (string_to_list vrstica)
+      | vrstica :: rest ->
+        let rec for_loop index nov_seznam =
+          if index >= String.length vrstica
+            then rekurzija rest vsota nov_seznam
+          else if List.mem vrstica.[index] seznam && not (List.mem vrstica.[index] nov_seznam)
+            then for_loop (index + 1) (vrstica.[index] :: nov_seznam)
+          else for_loop (index + 1) nov_seznam 
+        in
+        for_loop 0 []
+    in
+    string_of_int (rekurzija lines 0 [])
+end
+
 module Solver10 : Solver = struct
   let naloga1 data = ""
 
@@ -376,6 +421,7 @@ let choose_solver : string -> (module Solver) = function
   | "3" -> (module Solver3)
   | "4" -> (module Solver4)
   | "5" -> (module Solver5)
+  | "6" -> (module Solver6)
   | _ -> failwith "Ni še rešeno"
 
 let main () =
