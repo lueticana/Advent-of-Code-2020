@@ -407,6 +407,122 @@ module Solver6 : Solver = struct
     string_of_int (rekurzija lines 0 [])
 end
 
+module Solver7 : Solver = struct
+  type vrstica = {vsebuje : string; vsebovane : string list}
+  let naloga1 data =
+    let lines = List.lines data in
+    let rec predelane_vrstice sez predelane =
+      match sez with
+      | [] -> predelane
+      | vrstica :: rest ->
+        let locene = String.split_on_char ' ' vrstica in
+        let vsebuje = List.hd locene ^ List.nth locene 1 in
+        let rec naberi sez nabrane index =
+          if index >= List.length sez then nabrane
+          else naberi sez (((List.nth sez index) ^ (List.nth sez (index + 1))) :: nabrane) (index + 4)
+        in
+        let nabrane = naberi locene [] 5 in
+        predelane_vrstice rest ({vsebuje = vsebuje; vsebovane = nabrane} :: predelane)
+    in
+    let predelane = predelane_vrstice lines [] in
+    let rec poisci seznam str index lahko_vsebujejo =
+      if index >= List.length seznam then lahko_vsebujejo
+      else
+        let vrstica = List.nth seznam index in
+        if List.mem str vrstica.vsebovane && not (List.mem vrstica.vsebuje lahko_vsebujejo)
+          then
+          poisci seznam str (index + 1) (poisci seznam vrstica.vsebuje 0 (vrstica.vsebuje :: lahko_vsebujejo))
+        else
+          poisci seznam str (index + 1) lahko_vsebujejo
+    in
+    string_of_int (List.length (poisci predelane "shinygold" 0 []))
+
+  let naloga2 data _part1 =
+    let lines = List.lines data in
+    let rec predelane_vrstice sez predelane =
+      match sez with
+      | [] -> predelane
+      | vrstica :: rest ->
+        let locene = String.split_on_char ' ' vrstica in
+        let vsebuje = List.hd locene ^ List.nth locene 1 in
+        let rec naberi sez nabrane index =
+          if index >= List.length sez then nabrane
+          else naberi sez (((List.nth sez index) ^ (List.nth sez (index + 1)) ^ (List.nth sez (index + 2))) :: nabrane) (index + 4)
+        in
+        let nabrane = naberi locene [] 4 in
+        predelane_vrstice rest ({vsebuje = vsebuje; vsebovane = nabrane} :: predelane)
+    in
+    let predelane = predelane_vrstice lines [] in
+    let rec prestej seznam str index stevec =
+      if index >= List.length seznam then stevec
+      else
+        let vrstica = List.nth seznam index in
+        if vrstica.vsebuje = str
+          then
+          let rec znotraj sez vsota =
+            match sez with
+            | [] -> vsota
+            | a :: rest -> 
+              if a = "nootherbags." then vsota
+              else
+              let st = int_of_string (Char.escaped a.[0]) in
+              znotraj rest (vsota + (st * (prestej seznam (String.sub a 1 (String.length a - 1)) 0 1)))
+          in
+          znotraj vrstica.vsebovane stevec
+        else prestej seznam str (index + 1) stevec
+    in
+    string_of_int (prestej predelane "shinygold" 0 0)
+
+
+
+
+end
+
+module Solver8 : Solver = struct
+  let naloga1 data =
+    let lines = List.lines data in
+    let rec rekurzija acc index seznam_pozicij =
+      if List.mem index seznam_pozicij then acc
+      else
+        let vrstica = List.nth lines index in
+        let operacija = String.sub vrstica 0 3 in
+        let stevilo = int_of_string (String.sub vrstica 4 (String.length vrstica - 4)) in
+        match operacija with
+        | "acc" -> rekurzija (acc + stevilo) (index + 1) (index :: seznam_pozicij) 
+        | "jmp" -> rekurzija acc (index + stevilo) (index :: seznam_pozicij)
+        | "nop" -> rekurzija acc (index + 1) (index :: seznam_pozicij)
+        | _ -> failwith "Ni ukaz"
+    in
+    string_of_int (rekurzija 0 0 [])
+
+
+  let naloga2 data _part1 =
+    let lines = List.lines data in
+    let rec rekurzija acc index seznam_pozicij spremenjen =
+      if index >= List.length lines then acc
+      else if List.mem index seznam_pozicij
+        then rekurzija 0 0 [] (spremenjen + 1)
+      else
+        let vrstica = List.nth lines index in
+        let operacija = String.sub vrstica 0 3 in
+        let stevilo = int_of_string (String.sub vrstica 4 (String.length vrstica - 4)) in
+        if index = spremenjen then
+          match operacija with
+          | "acc" -> rekurzija 0 0 [] (spremenjen + 1)
+          | "jmp" -> rekurzija acc (index + 1) (index :: seznam_pozicij) spremenjen
+          | "nop" -> rekurzija acc (index + stevilo) (index :: seznam_pozicij) spremenjen
+          | _ -> failwith "Ni ukaz"
+        else
+          match operacija with
+          | "acc" -> rekurzija (acc + stevilo) (index + 1) (index :: seznam_pozicij) spremenjen
+          | "jmp" -> rekurzija acc (index + stevilo) (index :: seznam_pozicij) spremenjen
+          | "nop" -> rekurzija acc (index + 1) (index :: seznam_pozicij) spremenjen
+          | _ -> failwith "Ni ukaz"
+    in
+    string_of_int (rekurzija 0 0 [] 0)
+end
+
+
 module Solver10 : Solver = struct
   let naloga1 data = ""
 
@@ -422,6 +538,8 @@ let choose_solver : string -> (module Solver) = function
   | "4" -> (module Solver4)
   | "5" -> (module Solver5)
   | "6" -> (module Solver6)
+  | "7" -> (module Solver7)
+  | "8" -> (module Solver8)
   | _ -> failwith "Ni še rešeno"
 
 let main () =
