@@ -522,6 +522,57 @@ module Solver8 : Solver = struct
     string_of_int (rekurzija 0 0 [] 0)
 end
 
+module Solver9 : Solver = struct
+  let naloga1 data =
+    let lines = List.int_list (List.lines data) in
+    let  rec rekurzija sez dovoljene_vsote index =
+      let rec mnozenje stevilo sez' index1 vsote =
+        if index1 = 25 then vsote
+        else 
+          match sez' with
+          | [] -> failwith "Mislim, da nekaj ni v redu."
+          | a :: rest -> mnozenje stevilo rest (index1 + 1) (stevilo + a :: vsote)
+      in
+      match sez with
+      | [] -> failwith "vsi so v redu"
+      | stevilo :: rest when index < 25 -> rekurzija rest (dovoljene_vsote @ [(mnozenje stevilo rest 0 [])]) (index + 1)
+      | stevilo :: rest ->
+        if List.exists (List.mem stevilo) dovoljene_vsote
+          then rekurzija rest (List.tl dovoljene_vsote @ [(mnozenje stevilo rest 0 [])]) (index + 1)
+        else stevilo
+    in
+    string_of_int (rekurzija lines [] 0)
+
+
+  let naloga2 data _part1 =
+    let rec min_list list min' =
+      match list with
+      | [] -> min'
+      | a :: rest -> min_list rest (min min' a)
+    in
+    let rec max_list list max' =
+      match list with
+      | [] -> max'
+      | a :: rest -> max_list rest (max max' a)
+    in
+    let lines = List.int_list (List.lines data) in
+    let rec rekurzija sez cilj  =
+      match sez with 
+      | [] -> failwith "Ni takih stevil."
+      | stevilo :: rest ->
+        let rec mnozenje stevila sez' vsota =
+          if vsota = cilj then (min_list stevila cilj) + (max_list stevila 0)
+          else if vsota > cilj then rekurzija rest cilj
+          else 
+            match sez' with
+            | [] -> rekurzija rest cilj
+            | a :: rest' -> mnozenje (a :: stevila) rest' (a + vsota)
+        in
+        mnozenje [stevilo] rest stevilo
+    in
+    string_of_int (rekurzija lines (int_of_string _part1))
+end
+
 
 module Solver10 : Solver = struct
   let naloga1 data = ""
@@ -540,6 +591,7 @@ let choose_solver : string -> (module Solver) = function
   | "6" -> (module Solver6)
   | "7" -> (module Solver7)
   | "8" -> (module Solver8)
+  | "9" -> (module Solver9)
   | _ -> failwith "Ni še rešeno"
 
 let main () =
