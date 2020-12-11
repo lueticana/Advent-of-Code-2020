@@ -573,12 +573,56 @@ module Solver9 : Solver = struct
     string_of_int (rekurzija lines (int_of_string _part1))
 end
 
-
 module Solver10 : Solver = struct
+  let naloga1 data =
+    let lines = Array.of_list (List.int_list (List.lines data)) in
+    let ocena x y =
+      if x >= y then 1
+      else -1
+    in
+    Array.sort ocena lines;
+    let lines = Array.to_list lines in
+    let rec rekurzija sez enice trojice =
+      match sez with
+      | [] -> enice * trojice
+      | [a] -> enice * trojice
+      | a :: b :: rest ->
+        if b - a = 3 then rekurzija (b :: rest) enice (trojice + 1)
+        else if b - a = 1 then rekurzija (b :: rest) (enice + 1) trojice
+        else rekurzija (b :: rest) enice trojice
+    in
+    if List.hd lines = 1 then string_of_int (rekurzija lines 1 1)
+    else if List.hd lines = 3 then string_of_int (rekurzija lines 0 2)
+    else string_of_int (rekurzija lines 0 1)
+
+  let naloga2 data _part1 =
+    let lines = Array.of_list (List.int_list (List.lines data)) in
+    let ocena x y =
+      if x >= y then 1
+      else -1
+    in
+    Array.sort ocena lines;
+    let lines = Array.append [|0|] lines in
+    let dolzina = Array.length lines in
+    let rec rekurzija ar stevec index pozicija =
+      if index >=  30 then stevec
+      else if index = dolzina - 2 then stevec
+      else if pozicija > 3 then rekurzija ar (stevec + 1) (index  + 1) 1
+      else if index = dolzina - 3 && pozicija = 3 then rekurzija ar stevec (index + 1) 1
+      else if ar.(index + pozicija) - ar.(index) < 3
+        then rekurzija ar (stevec + (rekurzija ar 0 (index + pozicija) 1)) index (pozicija + 1)
+      else rekurzija ar stevec index (pozicija + 1)
+    in
+    string_of_int (rekurzija lines 0 0 1)
+end
+
+
+module Solver20 : Solver = struct
   let naloga1 data = ""
 
   let naloga2 data _part1 = ""
 end
+
 
 (* Poženemo zadevo *)
 let choose_solver : string -> (module Solver) = function
@@ -592,6 +636,7 @@ let choose_solver : string -> (module Solver) = function
   | "7" -> (module Solver7)
   | "8" -> (module Solver8)
   | "9" -> (module Solver9)
+  | "10" -> (module Solver10)
   | _ -> failwith "Ni še rešeno"
 
 let main () =
